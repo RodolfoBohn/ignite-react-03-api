@@ -6,11 +6,15 @@ import {
   TransitionsContainer,
   TransitionsTable,
 } from './styles'
-import { useTransactionContext } from '../../context/transaction'
+import { TransactionContext } from '../../context/transaction'
+import { useContextSelector } from 'use-context-selector'
 import { dateFormatted, priceFormatted } from '../../utils/formatter'
 
 export const Transition = () => {
-  const { transactions } = useTransactionContext()
+  const transactions = useContextSelector(TransactionContext, (context) => {
+    return context.transactions
+  })
+
   return (
     <div>
       <Header />

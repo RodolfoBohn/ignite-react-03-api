@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { createContext } from 'use-context-selector'
 import { api } from '../lib/axios'
 
 interface TransactionProps {
@@ -27,12 +28,12 @@ interface TransactionProviderProps {
   children: React.ReactNode
 }
 
-const TransactionContext = createContext({} as TransactionContextProps)
+export const TransactionContext = createContext({} as TransactionContextProps)
 
 export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   const [transactions, setTransactions] = useState<TransactionProps[]>([])
 
-  async function fetchTransactions(query?: string) {
+  const fetchTransactions = useCallback(async (query?: string) => {
     // EXEMPLO COM USO DA FETCH API
     // const url = new URL('http://localhost:3333/transactions')
 
@@ -52,21 +53,24 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
     })
 
     setTransactions(response.data)
-  }
+  }, [])
 
-  async function createNewTransaction(data: CreateNewTransactionProps) {
-    const response = await api.post('transactions', {
-      ...data,
-      createdAt: new Date(),
-    })
+  const createNewTransaction = useCallback(
+    async (data: CreateNewTransactionProps) => {
+      const response = await api.post('transactions', {
+        ...data,
+        createdAt: new Date(),
+      })
 
-    const newTransaction = response.data
-    setTransactions((state) => [newTransaction, ...state])
-  }
+      const newTransaction = response.data
+      setTransactions((state) => [newTransaction, ...state])
+    },
+    [],
+  )
 
   useEffect(() => {
     fetchTransactions()
-  }, [])
+  }, [fetchTransactions])
 
   return (
     <TransactionContext.Provider
@@ -81,4 +85,4 @@ export const TransactionProvider = ({ children }: TransactionProviderProps) => {
   )
 }
 
-export const useTransactionContext = () => useContext(TransactionContext)
+// export const useTransactionContext = () => useContext(TransactionContext)
